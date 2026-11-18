@@ -9,4 +9,5 @@ These small JSON payloads are synthetic and were written for offline tests from 
 | `product-everything.json` | A Bundle with different resource types |
 | `empty-search.json` | A successful search with an explicit empty entry list |
 | `next-link.json` | A search page with an opaque query-only continuation link |
+| `next-link-unescaped-product-name.json` | A synthetic absolute continuation with a literal space in the echoed product name, modeled on the wire format observed during release verification |
 | `operation-outcome.json` | A structured FHIR error example |

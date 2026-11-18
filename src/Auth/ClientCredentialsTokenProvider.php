@@ -7,6 +7,7 @@ namespace Hrabosh\EmaUpd\Auth;
 use DateTimeImmutable;
 use Hrabosh\EmaUpd\Exception\AuthenticationException;
 use Hrabosh\EmaUpd\Exception\TransportException;
+use Hrabosh\EmaUpd\Internal\BearerToken;
 use Hrabosh\EmaUpd\Internal\SystemClock;
 use InvalidArgumentException;
 use JsonException;
@@ -108,7 +109,7 @@ final class ClientCredentialsTokenProvider implements AccessTokenProviderInterfa
 
         $token = $payload['access_token'] ?? null;
         $type = $payload['token_type'] ?? null;
-        if (!is_string($token) || trim($token) === '' || !is_string($type) || strcasecmp($type, 'Bearer') !== 0) {
+        if (!is_string($token) || !BearerToken::isValid($token) || !is_string($type) || strcasecmp($type, 'Bearer') !== 0) {
             throw new AuthenticationException('The token endpoint did not return a usable Bearer token.');
         }
 

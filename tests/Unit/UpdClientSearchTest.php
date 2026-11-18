@@ -148,6 +148,17 @@ final class UpdClientSearchTest extends TestCase
         self::assertCount(2, $http->requests);
     }
 
+    public function testEncodesSpacesInTheProductNameEchoedByEmaWithoutRewritingTheToken(): void
+    {
+        $http = new ScriptedHttpClient(self::fixture('next-link-unescaped-product-name'), self::page());
+        $client = $this->client($http);
+        $page = $client->searchMedicinalProducts(['productName' => 'Synthetic medicine', '_count' => '1']);
+
+        self::assertNotNull($client->nextPage($page));
+        self::assertSame(self::SEARCH . '?productName=Synthetic%20medicine&_count=1&_ct=synthetic%2b%2F%3D', (string) $http->requests[1]->getUri());
+        self::assertCount(2, $http->requests);
+    }
+
     #[DataProvider('sameOriginLinks')]
     public function testAcceptsSameOriginLinksAndPreservesTheSuppliedQuery(string $link): void
     {
@@ -275,6 +286,7 @@ final class UpdClientSearchTest extends TestCase
         yield 'backslash' => ['x\\y?_ct=token'];
         yield 'malformed percent escape' => ['?_ct=bad%zz'];
         yield 'raw whitespace' => ['?_ct=bad token'];
+        yield 'product name with raw line break' => ["?productName=bad\nname&_ct=token"];
         yield 'raw invalid query character' => ['?_ct=token[123]'];
         yield 'opaque absolute URI' => ['https:MedicinalProductDefinition?_ct=token'];
         yield 'authority without the required delimiter' => ['spor.azure-api.net:443/upd/public/v4/MedicinalProductDefinition'];

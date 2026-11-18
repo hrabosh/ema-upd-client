@@ -105,6 +105,22 @@ final class ClientCredentialsTokenProviderTest extends TestCase
         self::assertCount(2, $http->requests);
     }
 
+    public function testRejectsAnInvalidBearerValueWithoutCachingIt(): void
+    {
+        $http = new ScriptedHttpClient(self::tokenResponse('invalid token', 600), self::tokenResponse('usable+/token=', 600));
+        $provider = self::provider($http);
+
+        try {
+            $provider->getAccessToken();
+            self::fail('An invalid Bearer value was accepted.');
+        } catch (AuthenticationException) {
+            self::assertCount(1, $http->requests);
+        }
+
+        self::assertSame('usable+/token=', $provider->getAccessToken());
+        self::assertCount(2, $http->requests);
+    }
+
     public function testAllowsARepresentableExpiryWithoutOverflowingTheClock(): void
     {
         $http = new ScriptedHttpClient(self::tokenResponse(self::TOKEN, PHP_INT_MAX));

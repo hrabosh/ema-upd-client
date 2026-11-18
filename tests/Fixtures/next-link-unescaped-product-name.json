@@ -1,0 +1,10 @@
+{
+    "resourceType": "Bundle",
+    "type": "searchset",
+    "link": [
+        {
+            "relation": "next",
+            "url": "https://spor.azure-api.net/upd/public/v4/MedicinalProductDefinition?productName=Synthetic medicine&_count=1&_ct=synthetic%2b%2F%3D"
+        }
+    ]
+}

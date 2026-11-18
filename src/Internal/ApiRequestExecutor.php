@@ -120,7 +120,7 @@ final readonly class ApiRequestExecutor
             throw new UnexpectedResponseException('The UPD request query changed during preparation.');
         }
         $token = $tokenProvider->getAccessToken();
-        if (preg_match('#\A[A-Za-z0-9._~+/-]+=*\z#', $token) !== 1) {
+        if (!BearerToken::isValid($token)) {
             throw new AuthenticationException('The token provider did not supply a usable Bearer token.');
         }
 
@@ -167,6 +167,7 @@ final readonly class ApiRequestExecutor
         #[SensitiveParameter]
         string $link,
     ): string {
+        $link = self::encodeEchoedProductName($link);
         $parts = parse_url($link);
         if (
             $link === ''
@@ -206,6 +207,25 @@ final readonly class ApiRequestExecutor
         $query = isset($parts['query']) ? '?' . $parts['query'] : '';
 
         return $previous->getScheme() . '://' . $authority . $path . $query;
+    }
+
+    private static function encodeEchoedProductName(#[SensitiveParameter] string $link): string
+    {
+        $queryStart = strpos($link, '?');
+        if ($queryStart === false || !str_contains($link, ' ')) {
+            return $link;
+        }
+
+        // UPD v4 can echo ASCII spaces in this filter. Preserve the token and other query bytes.
+        $queryStart += 1;
+        $pairs = explode('&', substr($link, $queryStart));
+        foreach ($pairs as $index => $pair) {
+            if (str_starts_with($pair, 'productName=')) {
+                $pairs[$index] = str_replace(' ', '%20', $pair);
+            }
+        }
+
+        return substr($link, 0, $queryStart) . implode('&', $pairs);
     }
 
     private function validateDestination(#[SensitiveParameter] string $uri): ?string

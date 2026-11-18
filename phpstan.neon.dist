@@ -5,3 +5,4 @@ parameters:
         - .php-cs-fixer.dist.php
         - src
         - tests
+        - examples

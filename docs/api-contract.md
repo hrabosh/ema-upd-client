@@ -20,7 +20,7 @@ Send `Authorization: Bearer <access token>` and `Accept: application/fhir+json` 
 
 ### Search parameters
 
-The public OpenAPI declares each query parameter optional and of type string. Descriptions below identify their purpose where documented or indicated by the name. Their production semantics remain to be verified.
+The public OpenAPI declares each query parameter optional and of type string. Descriptions below identify their purpose where documented or indicated by the name. Production observations for selected filters are recorded below.
 
 | Exact key | Purpose or schema example |
 | --- | --- |
@@ -49,23 +49,21 @@ The public Swagger introduction excludes documents. Its document search operatio
 
 ## Local observations
 
-On 2026-11-18 the public OpenAPI download matched the version and SHA-256 above. A bounded check against production used a local HTTP tool to obtain a token, search by product name, and look up one returned product.
+On 2026-11-18 the public OpenAPI download matched the version and SHA-256 above. A local HTTP check first confirmed token acquisition, product search and lookup. The PHP client's Guzzle-based smoke script then exercised production public v4 against the same OpenAPI document version, `1.7.2631-0`, with the following results.
 
 | Operation | Observation |
 | --- | --- |
-| Token request | HTTP 200, `application/json; charset=utf-8`. The registered endpoint accepted the form-encoded Client Credentials request and returned `access_token`, `token_type` (Bearer), `expires_in` (a positive integer) and `ext_expires_in`. |
+| Token request | HTTP 200, `application/json`. The registered endpoint accepted the form-encoded Client Credentials request. The early check observed `access_token`, `token_type` (Bearer), `expires_in` (a positive integer) and `ext_expires_in`. |
 | Product search | HTTP 200, `application/fhir+json; charset=utf-8`. With `productName=Nobivac Rabies` and `_count=1`, the `searchset` Bundle contained one `MedicinalProductDefinition` entry with a string ID. The Bundle omitted `total`. Its `next` link was an absolute HTTPS URL on the production host, on the same v4 search path and with a query string. |
 | Product lookup | HTTP 200, `application/fhir+json; charset=utf-8`. The `MedicinalProductDefinition` had the same string ID as the search result. The returned product name contained the search term, with additional text. This observation covers a single query. |
+| `$everything` | HTTP 200, `application/fhir+json`. The observed `searchset` Bundle contained the requested `MedicinalProductDefinition`, `AdministrableProductDefinition`, `Ingredient` and `RegulatedAuthorization`. |
+| Next page | HTTP 200, `application/fhir+json`. Following one same-origin absolute next link yielded a `searchset` Bundle with a different product. EMA echoed literal ASCII spaces in the `productName` query value. The client encodes those spaces as `%20` before request preparation and passes the opaque `_ct` and all other query bytes through as supplied. |
+| Permanent identifier search | HTTP 200, `application/fhir+json`. A known identifier sent under `permanantIdentifier` returned a `searchset` Bundle containing the resource ID confirmed by the name search and lookup. An unfiltered control with `_count=1` also returned HTTP 200 and yielded a different resource ID. |
 
-The check stopped at the first search page and product lookup. Following the next link, `$everything`, `permanantIdentifier` and response errors still need verification where specified below. The synthetic fixtures support offline development. [Fixture provenance](https://github.com/hrabosh/ema-upd-client/tree/main/tests/Fixtures)
+The pagination case has a synthetic regression fixture. The release smoke check followed one page and issued one identifier search with an unfiltered control. HTTP error mapping and the optional `OperationOutcome` payload are covered offline. [Fixture provenance](https://github.com/hrabosh/ema-upd-client/tree/main/tests/Fixtures)
 
-## Open checks for release
+## Remaining contract questions
 
-- [ ] Verify the token request through the packaged client and record only the status and response field names relevant to authentication and expiry.
-- [ ] Search with a known product and check the status, media type, Bundle type and shape, including the ID field needed for lookup. Use that ID for lookup and `$everything`. Record the returned resource types and optional envelope fields used by the client.
-- [ ] Verify the exact `permanantIdentifier` spelling and the filters used in the quickstart against known matches. Record observed matching behavior and code formats for the filters exercised.
-- [ ] Use a search known to yield multiple pages. Record the form of the next link and follow one server-supplied link unchanged. A search that yields no next link leaves pagination unverified. Continuation lifetime and page-size limits remain unknown.
-- [ ] Record an error envelope if one occurs during the bounded check. Verify HTTP status handling and optional `OperationOutcome` offline when live evidence is unavailable. Published endpoint statuses do not establish a uniform production error body or numerical rate limits.
-- [ ] Record the date, environment, API and document versions, operations, statuses, media and resource types, and outstanding differences. Where live behavior differs from this baseline, update this document and the owning issue before validating public signatures or examples. Add a minimal synthetic regression fixture when needed.
+The observations cover `productName`, `_count=1`, `permanantIdentifier` and one server-generated continuation. Other filter semantics, the production error-envelope shape, numeric rate limits, page-size limits and continuation lifetime remain unverified. Document access still requires a separate contract check.
 
-The authenticated release checks are tracked in [issue #8](https://github.com/hrabosh/ema-upd-client/issues/8).
+For repeat runs, use the release checklist. [Release verification](release.md) · [Issue #8](https://github.com/hrabosh/ema-upd-client/issues/8)
