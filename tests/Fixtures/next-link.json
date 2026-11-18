@@ -1,0 +1,23 @@
+{
+    "resourceType": "Bundle",
+    "type": "searchset",
+    "total": 2,
+    "link": [
+        {
+            "relation": "self",
+            "url": "?productName=Synthetic&_count=1"
+        },
+        {
+            "relation": "next",
+            "url": "?productName=Synthetic&_count=1&_ct=synthetic%2Bpage%2F2%3D"
+        }
+    ],
+    "entry": [
+        {
+            "resource": {
+                "resourceType": "MedicinalProductDefinition",
+                "id": "000123"
+            }
+        }
+    ]
+}

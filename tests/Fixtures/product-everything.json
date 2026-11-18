@@ -1,0 +1,23 @@
+{
+    "resourceType": "Bundle",
+    "type": "searchset",
+    "entry": [
+        {
+            "resource": {
+                "resourceType": "MedicinalProductDefinition",
+                "id": "000123"
+            }
+        },
+        {
+            "resource": {
+                "resourceType": "AdministrableProductDefinition",
+                "id": "synthetic-form",
+                "formOf": [
+                    {
+                        "reference": "MedicinalProductDefinition/000123"
+                    }
+                ]
+            }
+        }
+    ]
+}

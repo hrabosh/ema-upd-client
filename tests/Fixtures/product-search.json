@@ -1,0 +1,17 @@
+{
+    "resourceType": "Bundle",
+    "type": "searchset",
+    "total": 1,
+    "entry": [
+        {
+            "fullUrl": "https://example.test/upd/public/v4/MedicinalProductDefinition/000123",
+            "resource": {
+                "resourceType": "MedicinalProductDefinition",
+                "id": "000123"
+            },
+            "search": {
+                "mode": "match"
+            }
+        }
+    ]
+}

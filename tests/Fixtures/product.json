@@ -1,0 +1,21 @@
+{
+    "resourceType": "MedicinalProductDefinition",
+    "id": "000123",
+    "identifier": [
+        {
+            "system": "https://example.test/identifiers",
+            "value": "000456"
+        }
+    ],
+    "name": [
+        {
+            "productName": "Synthetic veterinary medicine"
+        }
+    ],
+    "extension": [
+        {
+            "url": "https://example.test/fhir/StructureDefinition/local-note",
+            "valueString": "Synthetic extension"
+        }
+    ]
+}
