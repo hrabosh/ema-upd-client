@@ -8,7 +8,7 @@ composer check
 composer audit --locked
 ```
 
-`composer check` validates Composer metadata and runs PHPUnit, PHPStan, and PHP-CS-Fixer in dry-run mode. The individual commands are `composer test`, `composer analyse`, and `composer cs:check`. Use `composer cs:fix` to apply formatting. The initial bootstrap has an empty PHPUnit suite. The first authentication change adds behavior tests and enables failure on an empty suite.
+`composer check` validates Composer metadata and runs PHPUnit, PHPStan, and PHP-CS-Fixer in dry-run mode. The individual commands are `composer test`, `composer analyse`, and `composer cs:check`. Use `composer cs:fix` to apply formatting. PHPUnit fails if the test suite is empty.
 
 Use PHP 8.3 when updating the development lock so the result installs on the minimum supported PHP version. CI tests the lock on PHP 8.3, 8.4, and 8.5 and independently resolves the lowest and highest allowed dependencies on the two ends of that matrix. Consumers resolve the package's own dependency constraints.
 
