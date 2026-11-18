@@ -52,7 +52,7 @@ final class ApiRequestExecutorTest extends TestCase
             'resourceType' => 'MedicinalProductDefinition',
             'id' => '000123',
             'extension' => [['url' => 'synthetic', 'valueInteger' => '9223372036854775808']],
-        ], $result['payload']);
+        ], $result['payload']->toArray());
     }
 
     public function testEncodesPathAndQueryComponentsExactlyOnceAndNormalizesTheBase(): void
@@ -66,7 +66,7 @@ final class ApiRequestExecutorTest extends TestCase
             'https://uat.example.test:8443/upd/public/v4/MedicinalProductDefinition/a%3Fb%23c%2Bd/$everything?a%2Bb=a%20b%2B%26%C4%8D&key=10%25',
             (string) $http->requests[0]->getUri(),
         );
-        self::assertSame([], $result['payload']);
+        self::assertSame([], $result['payload']->toArray());
     }
 
     public function testPreservesTheLiteralFhirOperationPath(): void

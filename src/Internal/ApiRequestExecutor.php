@@ -58,7 +58,7 @@ final readonly class ApiRequestExecutor
     /**
      * @param list<string> $pathSegments
      * @param array<string, string> $query
-     * @return array{payload: array<int|string, mixed>, requestUri: UriInterface}
+     * @return array{payload: DecodedJson, requestUri: UriInterface}
      */
     public function get(
         #[SensitiveParameter]
@@ -87,7 +87,7 @@ final readonly class ApiRequestExecutor
     /**
      * Sends a GET to an absolute URI within the configured API base.
      *
-     * @return array{payload: array<int|string, mixed>, requestUri: UriInterface}
+     * @return array{payload: DecodedJson, requestUri: UriInterface}
      */
     public function getAt(#[SensitiveParameter] string $uri): array
     {
@@ -144,7 +144,7 @@ final readonly class ApiRequestExecutor
             throw new UnexpectedResponseException('The UPD API response did not contain a readable JSON object.');
         }
 
-        return ['payload' => self::toDecodedArray($payload), 'requestUri' => $requestUri];
+        return ['payload' => $payload, 'requestUri' => $requestUri];
     }
 
     private function validateDestination(#[SensitiveParameter] string $uri): void
@@ -216,23 +216,26 @@ final readonly class ApiRequestExecutor
         return true;
     }
 
-    private static function decodeObject(#[SensitiveParameter] ResponseInterface $response): ?stdClass
+    private static function decodeObject(#[SensitiveParameter] ResponseInterface $response): ?DecodedJson
     {
         try {
-            $decoded = json_decode((string) $response->getBody(), false, 512, JSON_THROW_ON_ERROR | JSON_BIGINT_AS_STRING);
+            return DecodedJson::fromString((string) $response->getBody());
         } catch (JsonException|RuntimeException) {
             return null;
         }
-
-        return $decoded instanceof stdClass ? $decoded : null;
     }
 
     /** @return array<int|string, mixed>|null */
     private static function operationOutcome(#[SensitiveParameter] ResponseInterface $response): ?array
     {
-        $payload = self::decodeObject($response);
+        $decoded = self::decodeObject($response);
+        if ($decoded === null) {
+            return null;
+        }
+
+        $payload = $decoded->getObject();
         $issues = $payload->issue ?? null;
-        if ($payload === null || ($payload->resourceType ?? null) !== 'OperationOutcome' || !is_array($issues) || $issues === []) {
+        if (($payload->resourceType ?? null) !== 'OperationOutcome' || !is_array($issues) || $issues === []) {
             return null;
         }
 
@@ -248,22 +251,6 @@ final readonly class ApiRequestExecutor
             }
         }
 
-        return self::toDecodedArray($payload);
-    }
-
-    /**
-     * @param array<int|string, mixed>|stdClass $value
-     * @return array<int|string, mixed>
-     */
-    private static function toDecodedArray(#[SensitiveParameter] array|stdClass $value): array
-    {
-        $result = (array) $value;
-        foreach ($result as $key => $entry) {
-            if (is_array($entry) || $entry instanceof stdClass) {
-                $result[$key] = self::toDecodedArray($entry);
-            }
-        }
-
-        return $result;
+        return $decoded->toArray();
     }
 }
