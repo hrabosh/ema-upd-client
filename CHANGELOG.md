@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0 (planned)
+## 0.1.0
 
 - Add a framework-independent PHP client for the EMA veterinary UPD public v4 API.
 - Support OAuth2 Client Credentials with per-provider token caching and an injectable clock.

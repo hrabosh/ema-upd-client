@@ -10,15 +10,15 @@ The MIT license covers this project's original code. EMA provides the upstream d
 
 ## Installation
 
-Publication is pending. To try the release candidate from a local checkout, run these commands in a separate consumer directory. The examples use Guzzle 7 and Guzzle PSR-7 2. Other PSR-18 clients and PSR-17 factories can be injected.
+The examples use Guzzle 7 and Guzzle PSR-7 2. Other PSR-18 clients and PSR-17 factories can be injected. Install the tagged release from the GitHub repository in a separate consumer project.
 
 ```sh
 composer init --name=example/ema-upd-demo --type=project --no-interaction
-composer config repositories.ema-upd-client vcs /absolute/path/to/ema-upd-client
-composer require 'hrabosh/ema-upd-client:dev-chore/upd-release-preparation' 'guzzlehttp/guzzle:^7' 'guzzlehttp/psr7:^2'
+composer config repositories.ema-upd-client vcs https://github.com/hrabosh/ema-upd-client.git
+composer require 'hrabosh/ema-upd-client:0.1.0' 'guzzlehttp/guzzle:^7' 'guzzlehttp/psr7:^2'
 ```
 
-After the maintainer publishes the `0.1.0` Git tag, a consumer can use `https://github.com/hrabosh/ema-upd-client.git` as the VCS URL and `hrabosh/ema-upd-client:0.1.0` as the package constraint. [Composer VCS repositories](https://getcomposer.org/doc/05-repositories.md#vcs)
+When the package is listed on Packagist, Composer can install it from there using the same package constraint. [Composer VCS repositories](https://getcomposer.org/doc/05-repositories.md#vcs)
 
 ## Get API credentials
 

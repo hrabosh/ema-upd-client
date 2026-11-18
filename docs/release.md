@@ -21,7 +21,7 @@ An independent AI reviewer inspected the public API, token expiry and credential
 
 ## Maintainer publication
 
-Publication is pending. Complete these steps after candidate verification.
+Complete these steps after candidate verification.
 
 - [ ] Publish the reviewed source to GitHub and verify a successful GitHub Actions run on the release commit.
 - [ ] Create and push the Git tag `0.1.0` on that commit. Use the first entry in the changelog as the GitHub release notes. [Changelog](../CHANGELOG.md)
