@@ -10,15 +10,17 @@ The MIT license covers this project's original code. EMA provides the upstream d
 
 ## Installation
 
-The examples use Guzzle 7 and Guzzle PSR-7 2. Other PSR-18 clients and PSR-17 factories can be injected. Install the tagged release from the GitHub repository in a separate consumer project.
+Install the package from Packagist in your project. [Package on Packagist](https://packagist.org/packages/hrabosh/ema-upd-client)
 
 ```sh
-composer init --name=example/ema-upd-demo --type=project --no-interaction
-composer config repositories.ema-upd-client vcs https://github.com/hrabosh/ema-upd-client.git
-composer require 'hrabosh/ema-upd-client:0.1.0' 'guzzlehttp/guzzle:^7' 'guzzlehttp/psr7:^2'
+composer require hrabosh/ema-upd-client:^0.1
 ```
 
-When the package is listed on Packagist, Composer can install it from there using the same package constraint. [Composer VCS repositories](https://getcomposer.org/doc/05-repositories.md#vcs)
+For the bundled examples, also install Guzzle 7 and Guzzle PSR-7 2. Applications can inject other PSR-18 clients and PSR-17 factories.
+
+```sh
+composer require 'guzzlehttp/guzzle:^7' 'guzzlehttp/psr7:^2'
+```
 
 ## Get API credentials
 

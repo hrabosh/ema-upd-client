@@ -23,7 +23,7 @@ An independent AI reviewer inspected the public API, token expiry and credential
 
 Complete these steps after candidate verification.
 
-- [ ] Publish the reviewed source to GitHub and verify a successful GitHub Actions run on the release commit.
-- [ ] Create and push the Git tag `0.1.0` on that commit. Use the first entry in the changelog as the GitHub release notes. [Changelog](../CHANGELOG.md)
-- [ ] Sign in to Packagist, submit `https://github.com/hrabosh/ema-upd-client` as the repository URL, and verify that Packagist lists `hrabosh/ema-upd-client` with version `0.1.0`. Check that future tags can be refreshed through the GitHub integration. [Packagist submission](https://packagist.org/packages/submit) · [Packagist publishing guide](https://packagist.org/about#how-to-submit-packages)
-- [ ] Verify a fresh install with `composer require hrabosh/ema-upd-client:^0.1` once the package is listed. Record tag, release and Packagist status in the release issue. [Issue #8](https://github.com/hrabosh/ema-upd-client/issues/8)
+- [x] Publish the reviewed source to GitHub and verify a successful GitHub Actions run on the release commit. All five jobs passed on `13b69d7`. [Release CI](https://github.com/hrabosh/ema-upd-client/actions/runs/44361581219)
+- [x] Push the Git tag `0.1.0` on that commit and publish the release with the changelog notes. [GitHub release](https://github.com/hrabosh/ema-upd-client/releases/tag/0.1.0)
+- [x] Verify that Packagist lists `hrabosh/ema-upd-client` with version `0.1.0` at the same commit and reports automatic updates enabled. [Packagist listing](https://packagist.org/packages/hrabosh/ema-upd-client) · [Packagist publishing guide](https://packagist.org/about#how-to-submit-packages)
+- [x] Verify a fresh PHP 8.3 install with `composer require hrabosh/ema-upd-client:^0.1` and record the release evidence. [Issue #8](https://github.com/hrabosh/ema-upd-client/issues/8)
