@@ -13,6 +13,7 @@ The MIT license covers this project's original code. EMA provides the upstream d
 Publication is pending. To try the release candidate from a local checkout, run these commands in a separate consumer directory. The examples use Guzzle 7 and Guzzle PSR-7 2. Other PSR-18 clients and PSR-17 factories can be injected.
 
 ```sh
+composer init --name=example/ema-upd-demo --type=project --no-interaction
 composer config repositories.ema-upd-client vcs /absolute/path/to/ema-upd-client
 composer require 'hrabosh/ema-upd-client:dev-chore/upd-release-preparation' 'guzzlehttp/guzzle:^7' 'guzzlehttp/psr7:^2'
 ```

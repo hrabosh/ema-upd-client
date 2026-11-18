@@ -2,10 +2,14 @@
 
 ## Candidate verification
 
-- [ ] Run the offline workflow commands on PHP 8.3, 8.4 and 8.5. Refresh the lowest allowed dependencies on 8.3 and the highest allowed dependencies on 8.5.
-- [ ] Run the quickstart and smoke check from a clean PHP 8.3 consumer project installed from the candidate VCS revision. Record the production observations in the API contract.
-- [ ] Inspect the distribution archive for runtime code, Composer metadata, examples, README and license. Check for any local credentials, caches, vendor or tests in the archive.
+- [x] Run the offline workflow commands on PHP 8.3, 8.4 and 8.5. Refresh the lowest allowed dependencies on 8.3 and the highest allowed dependencies on 8.5.
+- [x] Run the quickstart and smoke check from a clean PHP 8.3 consumer project installed from the candidate VCS revision. Record the production observations in the API contract.
+- [x] Inspect the distribution archive for runtime code, Composer metadata, examples, README and license. Check for any local credentials, caches, vendor or tests in the archive.
 - [x] Review the public API, credential handling, expiry, destination validation and error behavior independently. Record release-affecting findings and their fixes.
+
+On 2026-11-18, all five workflow scenarios passed locally with 193 tests and 555 assertions each. The development lock installed on PHP 8.3.17, 8.4.27 and 8.5.12. Fresh lowest- and highest-dependency resolutions passed, and Composer reported zero security advisories. PHPStan and PHP-CS-Fixer passed.
+
+A separate PHP 8.3.17 project installed candidate revision `e137c2f` from local VCS with Guzzle 7.16.3 and Guzzle PSR-7 2.13.4. Composer autoloaded the package and the project executed both installed examples against production. Git and Composer archives contained the required package and example files. [API contract and production observations](api-contract.md#local-observations)
 
 ## Review record
 
