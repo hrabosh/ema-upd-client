@@ -84,6 +84,18 @@ final readonly class ApiRequestExecutor
         return $this->getAt($uri);
     }
 
+    /** @return array{payload: DecodedJson, requestUri: UriInterface} */
+    public function getFollowing(
+        #[SensitiveParameter]
+        UriInterface $previous,
+        #[SensitiveParameter]
+        string $link,
+    ): array {
+        $this->validateDestination((string) $previous);
+
+        return $this->getAt(self::resolveContinuation($previous, $link));
+    }
+
     /**
      * Sends a GET to an absolute URI within the configured API base.
      *
@@ -91,7 +103,7 @@ final readonly class ApiRequestExecutor
      */
     public function getAt(#[SensitiveParameter] string $uri): array
     {
-        $this->validateDestination($uri);
+        $query = $this->validateDestination($uri);
 
         /** @var array{ClientInterface, RequestFactoryInterface, AccessTokenProviderInterface} $dependencies */
         $dependencies = $this->dependencies->getValue();
@@ -104,7 +116,9 @@ final readonly class ApiRequestExecutor
         }
 
         $requestUri = $request->getUri();
-        $this->validateDestination((string) $requestUri);
+        if ($this->validateDestination((string) $requestUri) !== $query) {
+            throw new UnexpectedResponseException('The UPD request query changed during preparation.');
+        }
         $token = $tokenProvider->getAccessToken();
         if (preg_match('#\A[A-Za-z0-9._~+/-]+=*\z#', $token) !== 1) {
             throw new AuthenticationException('The token provider did not supply a usable Bearer token.');
@@ -147,7 +161,54 @@ final readonly class ApiRequestExecutor
         return ['payload' => $payload, 'requestUri' => $requestUri];
     }
 
-    private function validateDestination(#[SensitiveParameter] string $uri): void
+    private static function resolveContinuation(
+        #[SensitiveParameter]
+        UriInterface $previous,
+        #[SensitiveParameter]
+        string $link,
+    ): string {
+        $parts = parse_url($link);
+        if (
+            $link === ''
+            || $parts === false
+            || isset($parts['fragment']) || isset($parts['user']) || isset($parts['pass'])
+            || preg_match('/[\x00-\x20\x7f]/', $link) === 1
+            || preg_match("#[^a-z0-9._~!$&'()*+,;=:@/%-]#i", $parts['path'] ?? '') !== 0
+            || preg_match("#[^a-z0-9._~!$&'()*+,;=:@/?%-]#i", $parts['query'] ?? '') !== 0
+        ) {
+            throw new UnexpectedResponseException('The UPD continuation link is invalid.');
+        }
+
+        if (isset($parts['scheme'])) {
+            return $link;
+        }
+        $hasAuthority = str_starts_with($link, '//');
+        $authority = $previous->getAuthority();
+        $previousPath = $previous->getPath() ?: '/';
+        $path = $parts['path'] ?? '';
+        if (isset($parts['host'])) {
+            if (!$hasAuthority) {
+                throw new UnexpectedResponseException('The UPD continuation link is invalid.');
+            }
+
+            $authority = $parts['host'] . (isset($parts['port']) ? ':' . $parts['port'] : '');
+        } elseif ($hasAuthority) {
+            throw new UnexpectedResponseException('The UPD continuation link is invalid.');
+        } elseif ($path === '') {
+            $path = $previousPath;
+        } elseif (!str_starts_with($path, '/')) {
+            $directory = substr($previousPath, 0, (int) strrpos($previousPath, '/') + 1);
+            $path = $directory . $path;
+        }
+
+        // Resolve an explicit current-directory segment. The destination check rejects parent and encoded dot segments.
+        $path = preg_replace('#(?<=/)\.(?:/|\z)#', '', $path) ?? $path;
+        $query = isset($parts['query']) ? '?' . $parts['query'] : '';
+
+        return $previous->getScheme() . '://' . $authority . $path . $query;
+    }
+
+    private function validateDestination(#[SensitiveParameter] string $uri): ?string
     {
         $parts = self::parseHttpsUri($uri);
         $path = $parts['path'] ?? '/';
@@ -160,6 +221,8 @@ final readonly class ApiRequestExecutor
         ) {
             throw new UnexpectedResponseException('The UPD request destination is outside the configured API base or has an unsafe path.');
         }
+
+        return $parts['query'] ?? null;
     }
 
     /** @return array{host: string, port?: int, path?: string, query?: string}|null */

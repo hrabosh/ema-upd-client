@@ -27,10 +27,14 @@ final readonly class Bundle
         DecodedJson $response,
         #[SensitiveParameter]
         private UriInterface $requestUri,
+        private bool $searchResult = false,
     ) {
         $payload = $response->getObject();
         if (($payload->resourceType ?? null) !== 'Bundle') {
             throw new UnexpectedResponseException('The UPD response is not a Bundle.');
+        }
+        if ($searchResult && ($payload->type ?? null) !== 'searchset') {
+            throw new UnexpectedResponseException('The UPD search response must be a searchset Bundle.');
         }
 
         if (property_exists($payload, 'entry')) {
@@ -75,6 +79,12 @@ final readonly class Bundle
     public function getRequestUri(): UriInterface
     {
         return $this->requestUri;
+    }
+
+    /** @internal Search continuations use the same envelope rules as the first page. */
+    public function isSearchResult(): bool
+    {
+        return $this->searchResult;
     }
 
     /** @return array<int|string, mixed> */

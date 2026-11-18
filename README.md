@@ -2,7 +2,7 @@
 
 An unofficial, framework-independent PHP client for the European Medicines Agency's Union Product Database (UPD) for veterinary medicines.
 
-The first release is in development and targets PHP 8.3 and later. The client supports OAuth2 Client Credentials authentication, product lookup by ID, and retrieval of related resources with `$everything`. Product search is planned for the release.
+The first release is in development and targets PHP 8.3 and later. The client supports OAuth2 Client Credentials authentication, product search, lookup by ID, and retrieval of related resources with `$everything`.
 
 The development setup and planned scope are available on GitHub. [Contributing guide](https://github.com/hrabosh/ema-upd-client/blob/main/CONTRIBUTING.md) · [Release tracker](https://github.com/hrabosh/ema-upd-client/issues/1)
 
@@ -29,6 +29,32 @@ $related = $client->getMedicinalProductEverything($productId);
 ```
 
 `$product->getId()` returns the response ID when present. `$related->getEntries()` exposes complete Bundle entries, which can contain different resource types. Each call fetches one response. Use `$related->getNextLink()` to inspect any continuation link. Both response views provide the complete decoded FHIR payload through `toArray()`.
+
+## Product search and pagination
+
+Pass an associative array of filter names and string values. An empty array searches the collection without filters. Use the exact UPD parameter names, including `permanantIdentifier` as spelled in the public OpenAPI. [Supported search parameters](docs/api-contract.md#search-parameters)
+
+Choose how many pages to fetch. This example fetches up to three pages, including the initial search.
+
+```php
+$maxPages = 3;
+$page = $client->searchMedicinalProducts(['productName' => 'Nobivac Rabies', '_count' => '1']);
+$entries = [];
+
+for ($pageNumber = 1; $page !== null; ++$pageNumber) {
+    foreach ($page->getEntries() as $entry) {
+        $entries[] = $entry;
+    }
+
+    if ($pageNumber >= $maxPages) {
+        break;
+    }
+
+    $page = $client->nextPage($page);
+}
+```
+
+`nextPage()` follows one validated server link and returns `null` when the Bundle has no next link. The link supplies its own query. If the request factory changes that query, the client raises `UnexpectedResponseException` before asking for a token. The client confines page requests to the configured HTTPS origin and API path. The same method also works with continuation links from `$everything` Bundles.
 
 ## API errors
 
