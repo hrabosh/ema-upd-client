@@ -49,13 +49,19 @@ The public Swagger introduction excludes documents. Its document search operatio
 
 ## Local observations
 
-On 2026-11-18 the public OpenAPI download matched the version and SHA-256 above. The early authenticated token → search → product check was unavailable because the local environment lacked UPD registration credentials. Authenticated response and filter behavior remain unverified. The synthetic fixtures support offline development. [Fixture provenance](https://github.com/hrabosh/ema-upd-client/tree/main/tests/Fixtures)
+On 2026-11-18 the public OpenAPI download matched the version and SHA-256 above. A bounded check against production used a local HTTP tool to obtain a token, search by product name, and look up one returned product.
 
-For the early check, use an existing HTTP tool with the registration values supplied locally. Acquire a token, send a search using a known product or filter, then request one returned resource ID. Record status, content type, resource type and whether the filter behaved as expected. Avoid saving secrets, tokens, complete responses or continuation values in the repository or issue comments.
+| Operation | Observation |
+| --- | --- |
+| Token request | HTTP 200, `application/json; charset=utf-8`. The registered endpoint accepted the form-encoded Client Credentials request and returned `access_token`, `token_type` (Bearer), `expires_in` (a positive integer) and `ext_expires_in`. |
+| Product search | HTTP 200, `application/fhir+json; charset=utf-8`. With `productName=Nobivac Rabies` and `_count=1`, the `searchset` Bundle contained one `MedicinalProductDefinition` entry with a string ID. The Bundle omitted `total`. Its `next` link was an absolute HTTPS URL on the production host, on the same v4 search path and with a query string. |
+| Product lookup | HTTP 200, `application/fhir+json; charset=utf-8`. The `MedicinalProductDefinition` had the same string ID as the search result. The returned product name contained the search term, with additional text. This observation covers a single query. |
+
+The check stopped at the first search page and product lookup. Following the next link, `$everything`, `permanantIdentifier` and response errors still need verification where specified below. The synthetic fixtures support offline development. [Fixture provenance](https://github.com/hrabosh/ema-upd-client/tree/main/tests/Fixtures)
 
 ## Open checks for release
 
-- [ ] Confirm the token request against EMA and record only the status and response field names relevant to authentication and expiry.
+- [ ] Verify the token request through the packaged client and record only the status and response field names relevant to authentication and expiry.
 - [ ] Search with a known product and check the status, media type, Bundle type and shape, including the ID field needed for lookup. Use that ID for lookup and `$everything`. Record the returned resource types and optional envelope fields used by the client.
 - [ ] Verify the exact `permanantIdentifier` spelling and the filters used in the quickstart against known matches. Record observed matching behavior and code formats for the filters exercised.
 - [ ] Use a search known to yield multiple pages. Record the form of the next link and follow one server-supplied link unchanged. A search that yields no next link leaves pagination unverified. Continuation lifetime and page-size limits remain unknown.
