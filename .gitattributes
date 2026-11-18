@@ -1,0 +1,31 @@
+* text=auto
+
+/.agents export-ignore
+/.aws export-ignore
+/.codex export-ignore
+/.editorconfig export-ignore
+/.gitattributes export-ignore
+/.github export-ignore
+/.gitignore export-ignore
+/.php-cs-fixer.cache export-ignore
+/.php-cs-fixer.dist.php export-ignore
+/.php-cs-fixer.php export-ignore
+/.phpunit.cache export-ignore
+/.phpunit.result.cache export-ignore
+/CONTRIBUTING.md export-ignore
+/composer.lock export-ignore
+/phpstan.neon export-ignore
+/phpstan.neon.dist export-ignore
+/phpunit.xml export-ignore
+/phpunit.xml.dist export-ignore
+/tests export-ignore
+/vendor export-ignore
+
+.env export-ignore
+.env.* export-ignore
+auth.json export-ignore
+credentials.json export-ignore
+*.key export-ignore
+*.pem export-ignore
+*.p12 export-ignore
+*.pfx export-ignore

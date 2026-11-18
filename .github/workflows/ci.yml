@@ -1,0 +1,54 @@
+name: CI
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: PHP ${{ matrix.php }} / ${{ matrix.dependencies }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - php: '8.3'
+            dependencies: locked
+          - php: '8.4'
+            dependencies: locked
+          - php: '8.5'
+            dependencies: locked
+          - php: '8.3'
+            dependencies: lowest
+          - php: '8.5'
+            dependencies: highest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+          tools: composer:v2
+      - run: composer validate --strict
+      - name: Install locked dependencies
+        if: matrix.dependencies == 'locked'
+        run: composer install --no-interaction --prefer-dist --no-progress
+      - name: Resolve lowest dependencies
+        if: matrix.dependencies == 'lowest'
+        run: |
+          rm composer.lock
+          composer update --prefer-lowest --prefer-stable --no-interaction --prefer-dist --no-progress
+      - name: Resolve highest dependencies
+        if: matrix.dependencies == 'highest'
+        run: |
+          rm composer.lock
+          composer update --no-interaction --prefer-dist --no-progress
+      - run: composer audit --locked
+      - run: composer test
+      - run: composer analyse
+        if: matrix.php == '8.3' && matrix.dependencies == 'locked'
+      - run: composer cs:check
+        if: matrix.php == '8.3' && matrix.dependencies == 'locked'
